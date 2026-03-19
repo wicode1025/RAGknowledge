@@ -7,25 +7,23 @@
 ### 1. 知识库构建
 
 #### PDF解析层
-- **pdfplumber**: 高效提取PDF文本内容
-- **Tesseract OCR**: 识别扫描版PDF（图片形式）中的文字
-- **Markdown标准化**: 将解析结果转换为统一的Markdown格式
+- **PyPDFLoader**: LangChain内置的PDF文档加载器
+- 自动提取PDF文本内容
 
 #### 文本分块
-- **递归字符切片算法**: 采用分层分块策略保持上下文逻辑连贯性
+- **RecursiveCharacterTextSplitter**: LangChain提供的递归文本分割器
 - **Chunk大小**: 512字符，Overlap: 50字符
-- 解决传统随机切片导致的语义中断问题
+- 支持中文分隔符（。！？等）
 
 ### 2. 检索层
 
 #### 向量存储
 - **FAISS**: 高效的向量相似度搜索库
-- **Sentence-Transformers**: all-MiniLM-L6-v2 嵌入模型（384维）
+- **HuggingFaceEmbeddings**: all-MiniLM-L6-v2 嵌入模型（384维）
 
 #### 检索机制
 - **余弦相似度**: 计算查询与文档片段的语义匹配度
 - **Top-K召回**: 返回最相关的K个知识片段
-- 支持毫秒级大规模向量检索
 
 ### 3. 评估层
 
@@ -39,7 +37,7 @@
 
 ### 4. 大语言模型集成
 
-支持双模型切换：
+使用LangChain统一接口：
 - **Qwen (千问)**: 阿里云通义千问系列
 - **Claude**: Anthropic Claude系列
 
@@ -50,33 +48,13 @@
 - 检索原文高亮展示
 - 相似度分数可视化
 
-## 版本说明
+## 快速开始
 
-本项目提供两个版本：
-
-- **原生版本**: 手动实现各组件，深入理解RAG原理
-- **LangChain版本**: 使用LangChain框架，快速构建RAG系统
-
-### LangChain版本（推荐）
-
-```bash
-# 安装LangChain依赖
-pip install -r requirements.txt
-
-# 构建知识库
-python main_langchain.py
-
-# 启动Web界面
-streamlit run visualization/langchain_app.py
-```
-
----
-
-### 原生版本（环境配置）
+### 环境配置
 
 ```bash
 # 克隆项目
-git clone https://github.com/34177/RAGknowledge.git
+git clone https://github.com/wicode1025/RAGknowledge.git
 cd RAGknowledge
 
 # 创建虚拟环境
@@ -97,55 +75,43 @@ pip install -r requirements.txt
 # Qwen配置
 QWEN_API_KEY = "your-qwen-api-key"
 
-# 或 Claude配置
-LLM_PROVIDER = "claude"
+# 选择LLM提供商 (qwen 或 claude)
+LLM_PROVIDER = "qwen"
 ```
 
 ### 构建知识库
 
 ```bash
-python main.py
+python main_langchain.py
 ```
 
 ### 启动Web界面
 
 ```bash
-streamlit run visualization/app.py
+streamlit run visualization/langchain_app.py
 ```
 
 ## 项目结构
 
 ```
 RAGknowledge/
-├── knowledge_base/         # 知识库构建模块（原生版）
-│   ├── nougat_parser.py   # PDF解析器
-│   ├── text_splitter.py   # 文本分块
-│   └── vector_store.py    # 向量存储
-├── retrieval/             # 检索模块（原生版）
-│   └── retriever.py       # 向量检索
-├── evaluation/            # 评估模块（原生版）
-│   └── threshold_filter.py # 阈值过滤
-├── llm/                   # LLM集成（原生版）
-│   ├── qwen_client.py     # 千问客户端
-│   └── claude_client.py   # Claude客户端
-├── visualization/         # 可视化
-│   ├── app.py             # Streamlit应用（原生版）
-│   └── langchain_app.py   # Streamlit应用（LangChain版）
-├── langchain_rag.py       # LangChain版RAG系统
-├── main.py                # 入口脚本（原生版）
-├── main_langchain.py      # 入口脚本（LangChain版）
-├── rag_system.py          # RAG系统主逻辑（原生版）
-└── config.py              # 配置文件
+├── langchain_rag.py              # 核心RAG系统（LangChain实现）
+├── main_langchain.py             # 终端入口脚本
+├── config.py                     # 配置文件
+├── visualization/
+│   └── langchain_app.py          # Streamlit Web界面
+├── requirements.txt              # Python依赖
+└── README.md                     # 项目说明
 ```
 
 ## 技术栈
 
 | 组件 | 技术选型 |
 |------|----------|
-| RAG框架 | LangChain（推荐）/ 原生实现 |
+| RAG框架 | LangChain |
 | 向量数据库 | FAISS |
 | 嵌入模型 | sentence-transformers/all-MiniLM-L6-v2 |
-| PDF解析 | PyPDFLoader / pdfplumber |
+| PDF解析 | PyPDFLoader |
 | 大语言模型 | Qwen / Claude |
 | Web框架 | Streamlit |
 | Python版本 | 3.8+ |
@@ -161,11 +127,11 @@ RAGknowledge/
 
 ## 核心优势
 
-1. **逻辑连贯性**: 递归切片算法保持上下文完整性
-2. **高精度检索**: FAISS + 余弦相似度实现语义匹配
-3. **可解释性**: 证据对齐机制标注原文来源
-4. **灵活性**: 支持多模型切换，适应不同场景
-5. **中文优化**: 针对中文PDF提供OCR支持
+1. **工程化**: 使用LangChain框架，快速构建RAG系统
+2. **逻辑连贯性**: 递归分割保持上下文完整性
+3. **高精度检索**: FAISS + 余弦相似度实现语义匹配
+4. **可解释性**: 证据对齐机制标注原文来源
+5. **灵活性**: 支持多模型切换，适应不同场景
 
 ## 适用场景
 
